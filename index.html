@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outdoors Dashboard — South Georgia Trip Planner | riktom.com</title>
+  <meta name="description" content="Real-time Go/No Go trip planning for South Georgia outdoors — river levels, wildfire alerts, weather, and solunar activity forecasts for 12 rivers, WMAs, and fishing spots in one view.">
+  <link rel="stylesheet" href="css/style.css?v=1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2646745084546998" crossorigin="anonymous"></script>
+  <script async src="https://fundingchoicesmessages.google.com/i/pub-2646745084546998?ers=1"></script>
+  <script>(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){const i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;';i.style.display='none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();</script>
+</head>
+<body>
+
+<nav>
+  <a href="https://riktom.com" class="logo">rik<span>tom</span>.com</a>
+  <ul>
+    <li><a href="https://riktom.com">Home</a></li>
+    <li><a href="https://riktom.com/about.html">About</a></li>
+    <li><a href="https://riktom.com/articles/">Articles</a></li>
+    <li class="nav-dropdown">
+      <a href="https://riktom.com/#apps">Apps</a>
+      <div class="dropdown-menu">
+        <a href="https://river.riktom.com" target="_blank" rel="noopener"><span class="dd-icon">🎣</span>RiverWatch</a>
+        <a href="https://fire.riktom.com"  target="_blank" rel="noopener"><span class="dd-icon">🔥</span>Fire Watcher</a>
+        <a href="https://forecast.riktom.com" target="_blank" rel="noopener"><span class="dd-icon">🌤️</span>Hunt &amp; Fish Forecast</a>
+        <a href="https://hunt.riktom.com"  target="_blank" rel="noopener"><span class="dd-icon">🦌</span>Hunting Season Tracker</a>
+        <a href="https://trucks.riktom.com" target="_blank" rel="noopener"><span class="dd-icon">🚛</span>Truck Finder</a>
+        <a href="https://burn.riktom.com"  target="_blank" rel="noopener"><span class="dd-icon">🔥</span>Burn Permit Checker</a>
+        <a href="https://ramps.riktom.com" target="_blank" rel="noopener"><span class="dd-icon">⚓</span>Ramp Radar</a>
+        <a href="https://tips.riktom.com"  target="_blank" rel="noopener"><span class="dd-icon">⛺</span>Field Reports</a>
+        <a href="https://deer.riktom.com"  target="_blank" rel="noopener"><span class="dd-icon">🦌</span>Deer Radar</a>
+        <a href="https://dash.riktom.com"  target="_blank" rel="noopener"><span class="dd-icon">🎯</span>Trip Planner</a>
+      </div>
+    </li>
+    <li><a href="https://riktom.com/suggest.html" style="color:#fff;font-weight:600;">💡 Suggest an Idea</a></li>
+  </ul>
+</nav>
+
+<!-- Location Picker Bar -->
+<div class="loc-bar">
+  <div class="loc-left">
+    <label for="loc-select" class="sr-only">Select Location</label>
+    <select id="loc-select" aria-label="Select a location"></select>
+    <button id="fav-btn" class="btn-icon" title="Save this location">☆ Save</button>
+  </div>
+  <div class="loc-right">
+    <button id="refresh-btn" class="btn-icon" title="Refresh data">↻ Refresh</button>
+    <button id="map-toggle" class="btn-icon" title="Toggle map">🗺️ Map</button>
+    <button id="share-btn" class="btn-primary" title="Share trip plan">↗ Share Trip</button>
+  </div>
+</div>
+
+<!-- Location Title -->
+<div class="loc-header">
+  <div class="loc-header-left">
+    <h1 id="loc-name" class="loc-name">—</h1>
+    <div id="loc-meta" class="loc-meta"></div>
+  </div>
+  <div class="loc-header-right">
+    <span id="last-updated" class="last-updated"></span>
+  </div>
+</div>
+
+<!-- Dashboard Cards Grid -->
+<div class="dash-grid">
+  <div class="card" id="gonogo-card" aria-label="Go/No Go Score"></div>
+  <div class="card" id="river-card" aria-label="River Conditions"></div>
+  <div class="card" id="weather-card" aria-label="Weather"></div>
+  <div class="card" id="alerts-card" aria-label="Alerts"></div>
+  <div class="card" id="solunar-card" aria-label="Activity Now"></div>
+  <div class="card card-full" id="forecast3-card" aria-label="3-Day Forecast"></div>
+</div>
+
+<!-- Map Section -->
+<div id="map-section" class="map-section hidden">
+  <div class="map-header">
+    <span>📍 Location Map</span>
+    <button id="map-close" class="btn-icon small">✕ Close</button>
+  </div>
+  <div id="map"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://riktom.com">Home</a>
+    <a href="https://riktom.com/about.html">About</a>
+    <a href="https://riktom.com/articles/">Articles</a>
+    <a href="https://riktom.com/privacy.html">Privacy Policy</a>
+  </div>
+  <p>&copy; 2026 riktom.com &mdash; Hahira, Georgia</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="js/app.js?v=1"></script>
+</body>
+</html>
