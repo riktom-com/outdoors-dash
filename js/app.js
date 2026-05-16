@@ -131,7 +131,6 @@ function init() {
     document.getElementById('map-toggle').textContent = '🗺️ Map';
   });
 
-  initMap();
   selectLocation(LOCATIONS[0].id);
 
   // Auto-refresh every 10 minutes
@@ -673,7 +672,8 @@ function initMap() {
 }
 
 function updateMap() {
-  if (!S.map || !S.loc) return;
+  if (!S.loc) return;
+  if (!S.map) return; // map not opened yet — will update on first open
   S.map.setView([S.loc.lat, S.loc.lon], 11);
   if (S.marker) S.map.removeLayer(S.marker);
   const icon = { river: '🎣', wma: '🦌', lake: '🐟' }[S.loc.type] || '📍';
@@ -688,7 +688,14 @@ function toggleMap() {
   const btn = document.getElementById('map-toggle');
   const hide = !sec.classList.toggle('hidden');
   btn.textContent = hide ? '🗺️ Map' : '🗺️ Hide Map';
-  if (!hide) setTimeout(() => S.map?.invalidateSize(), 200);
+  if (!hide) {
+    // Lazy-init map on first open so Leaflet can measure a visible container
+    if (!S.map) {
+      initMap();
+      if (S.loc) updateMap();
+    }
+    setTimeout(() => S.map?.invalidateSize(), 200);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
