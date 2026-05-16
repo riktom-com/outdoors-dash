@@ -686,10 +686,11 @@ function updateMap() {
 function toggleMap() {
   const sec = document.getElementById('map-section');
   const btn = document.getElementById('map-toggle');
-  const hide = !sec.classList.toggle('hidden');
-  btn.textContent = hide ? '🗺️ Map' : '🗺️ Hide Map';
-  if (!hide) {
-    // Lazy-init map on first open so Leaflet can measure a visible container
+  // classList.toggle returns true if class was ADDED (now hidden), false if removed (now visible)
+  const nowHidden = sec.classList.toggle('hidden');
+  btn.textContent = nowHidden ? '🗺️ Map' : '🗺️ Hide Map';
+  if (!nowHidden) {
+    // Map is now visible — lazy-init Leaflet so it can measure the container
     if (!S.map) {
       initMap();
       if (S.loc) updateMap();
