@@ -71,6 +71,56 @@ const LOCATIONS = [
     tags: ['hunting', 'deer', 'turkey'],
   },
 
+  // ── Campgrounds & State Parks ────────────────────────────────────
+  {
+    id: 'stephen-foster-sp', name: 'Stephen C. Foster State Park',
+    type: 'campsite', lat: 30.8256, lon: -82.3540, county: 'Charlton',
+    gaugeId: null, floodStage: null, actionStage: null,
+    city: 'Fargo',
+    desc: 'IDA-certified Dark Sky Park inside the Okefenokee NWR. Tent & RV sites, cabin rentals, and boat access into the swamp.',
+    tags: ['camping', 'dark sky', 'kayak', 'birding', 'stargazing'],
+  },
+  {
+    id: 'laura-walker-sp', name: 'Laura S. Walker State Park',
+    type: 'campsite', lat: 31.2048, lon: -82.2679, county: 'Ware',
+    gaugeId: null, floodStage: null, actionStage: null,
+    city: 'Waycross',
+    desc: 'Lake camping near Waycross — fishing, swimming, disc golf, and a dog park. Close to Okefenokee.',
+    tags: ['camping', 'lake', 'fishing', 'disc golf', 'family'],
+  },
+  {
+    id: 'general-coffee-sp', name: 'General Coffee State Park',
+    type: 'campsite', lat: 31.4844, lon: -82.8308, county: 'Coffee',
+    gaugeId: null, floodStage: null, actionStage: null,
+    city: 'Douglas',
+    desc: 'Heritage farm setting on the Seventeen Mile River. Tent & RV sites, pioneer camping, and nature trails through longleaf pine habitat.',
+    tags: ['camping', 'nature trails', 'history', 'pioneer camping'],
+  },
+  {
+    id: 'seminole-sp', name: 'Seminole State Park',
+    type: 'campsite', lat: 30.7803, lon: -84.8553, county: 'Seminole',
+    gaugeId: null, floodStage: null, actionStage: null,
+    city: 'Donalsonville',
+    desc: 'Right on Lake Seminole — campsites with water & electric, boat ramps, fishing piers. One of South Georgia\'s best bass lakes.',
+    tags: ['camping', 'lake', 'bass fishing', 'boating', 'RV'],
+  },
+  {
+    id: 'okefenokee-adventures', name: 'Okefenokee Adventures Campground',
+    type: 'campsite', lat: 30.8319, lon: -82.0100, county: 'Charlton',
+    gaugeId: null, floodStage: null, actionStage: null,
+    city: 'Folkston',
+    desc: 'Private campground at the East entrance to Okefenokee. Guided boat tours, canoe rentals, tent & RV sites, and a camp store.',
+    tags: ['camping', 'swamp tours', 'kayak', 'wildlife', 'family'],
+  },
+  {
+    id: 'reed-bingham-camp', name: 'Reed Bingham State Park — Campground',
+    type: 'campsite', lat: 31.2340, lon: -83.4883, county: 'Cook',
+    gaugeId: null, floodStage: null, actionStage: null,
+    city: 'Adel',
+    desc: 'Lake Alapaha camping with full hookups and primitive sites. Home to one of the largest black vulture roosts in the Southeast. Close to Valdosta.',
+    tags: ['camping', 'lake', 'birding', 'fishing', 'RV'],
+  },
+
   // ── Lakes & Fishing Spots ────────────────────────────────────────
   {
     id: 'banks-lake-nwr', name: 'Banks Lake NWR',
@@ -151,9 +201,10 @@ function buildLocationSelect() {
   }
 
   const groups = [
-    { label: '🎣 Rivers',              filter: l => l.type === 'river' },
-    { label: '🦌 WMAs & Hunting Areas', filter: l => l.type === 'wma'   },
-    { label: '🐟 Lakes & Fishing Spots', filter: l => l.type === 'lake'  },
+    { label: '🎣 Rivers',              filter: l => l.type === 'river'    },
+    { label: '🦌 WMAs & Hunting Areas', filter: l => l.type === 'wma'     },
+    { label: '🐟 Lakes & Fishing Spots', filter: l => l.type === 'lake'   },
+    { label: '⛺ Campgrounds',           filter: l => l.type === 'campsite'},
   ];
   groups.forEach(g => sel.appendChild(makeOptGroup(g.label, LOCATIONS.filter(g.filter))));
 }
@@ -422,52 +473,66 @@ function computeSolunar() {
    GO / NO GO SCORE
    ═══════════════════════════════════════════════════════════════════ */
 function computeScore() {
+  const isCamp = S.loc.type === 'campsite';
   let value = 70;
   const factors = [];
 
   const add = (icon, text, impact) => { value += impact; factors.push({ icon, text, impact }); };
 
-  // ── River ────────────────────────────────────────────────────────
-  if (S.river && !S.river.error && S.loc.gaugeId) {
-    if (S.river.status === 'Flood Stage')  add('🚨', 'River at flood stage',    -40);
-    else if (S.river.status === 'Action Stage') add('⚠️', 'River above action stage', -15);
-    else                                   add('✅', 'River at normal levels',  +10);
+  // ── River (fishing/hunting/lake only) ────────────────────────────
+  if (!isCamp && S.river && !S.river.error && S.loc.gaugeId) {
+    if (S.river.status === 'Flood Stage')       add('🚨', 'River at flood stage',        -40);
+    else if (S.river.status === 'Action Stage') add('⚠️', 'River above action stage',    -15);
+    else                                        add('✅', 'River at normal levels',       +10);
   }
 
   // ── NWS Alerts ───────────────────────────────────────────────────
   const hasEvt = (...terms) => S.alerts.some(a => terms.some(t => a.properties.event.includes(t)));
-  if (hasEvt('Tornado Warning'))                 add('🌪️', 'Tornado warning active',             -60);
-  if (hasEvt('Severe Thunderstorm Warning'))      add('⛈️', 'Severe thunderstorm warning',        -35);
-  if (hasEvt('Flash Flood Warning'))              add('🌊', 'Flash flood warning',                -30);
-  if (hasEvt('Flood Warning', 'Flood Advisory')) add('💧', 'Flood warning active',               -20);
-  if (hasEvt('Red Flag Warning'))                 add('🔥', 'Red Flag Warning — extreme fire risk', -20);
-  if (hasEvt('Fire Weather Watch'))               add('🔥', 'Fire Weather Watch in effect',       -10);
-  if (S.alerts.length === 0)                      add('✅', 'No active weather alerts',           +5);
+  if (hasEvt('Tornado Warning'))                add('🌪️', 'Tornado warning active',              -60);
+  if (hasEvt('Severe Thunderstorm Warning'))     add('⛈️', 'Severe thunderstorm warning',         -35);
+  if (hasEvt('Flash Flood Warning'))             add('🌊', 'Flash flood warning',                 -30);
+  if (hasEvt('Flood Warning', 'Flood Advisory')) add('💧', 'Flood warning active',                -20);
+  if (hasEvt('Red Flag Warning'))                add('🔥', isCamp ? 'Red Flag — campfire banned' : 'Red Flag Warning — extreme fire risk', isCamp ? -25 : -20);
+  if (hasEvt('Fire Weather Watch'))              add('🔥', 'Fire Weather Watch in effect',        -10);
+  if (S.alerts.length === 0)                     add('✅', 'No active weather alerts',            +5);
 
   // ── Weather ──────────────────────────────────────────────────────
   if (S.weather?.periods?.length) {
     const p       = S.weather.periods[0];
+    const tonight = S.weather.periods[1]; // overnight period
     const winds   = (p.windSpeed || '').match(/\d+/g)?.map(Number) || [0];
     const windMax = Math.max(...winds);
     const precip  = p.probabilityOfPrecipitation?.value ?? 0;
     const temp    = p.temperature ?? 75;
+    const nightTemp = tonight?.temperature ?? null;
 
-    if (windMax > 25)    add('💨', `High winds: ${p.windSpeed}`,       -10);
-    else if (windMax > 15) add('💨', `Breezy: ${p.windSpeed}`,          -5);
+    if (windMax > 25)      add('💨', `High winds: ${p.windSpeed}`,       isCamp ? -15 : -10);
+    else if (windMax > 15) add('💨', `Breezy: ${p.windSpeed}`,           -5);
 
-    if (precip > 70)     add('🌧️', `Heavy rain likely (${precip}%)`,  -20);
-    else if (precip > 40) add('🌦️', `Rain chance: ${precip}%`,        -10);
-    else if (precip < 15) add('☀️', 'Clear skies expected',            +5);
+    if (precip > 70)       add('🌧️', `Heavy rain likely (${precip}%)`,  isCamp ? -30 : -20);
+    else if (precip > 40)  add('🌦️', `Rain chance: ${precip}%`,         isCamp ? -15 : -10);
+    else if (precip < 15)  add('☀️', 'Clear skies expected',             +5);
 
-    if (temp > 100)      add('🌡️', `Dangerous heat: ${temp}°F`,       -15);
-    else if (temp < 30)  add('🌡️', `Freezing temps: ${temp}°F`,       -10);
+    if (isCamp) {
+      // Camping-specific temp scoring: ideal is 55–82°F overnight
+      if (nightTemp !== null) {
+        if (nightTemp < 32)       add('🌡️', `Freezing overnight: ${nightTemp}°F`,     -20);
+        else if (nightTemp < 45)  add('🌡️', `Cold overnight: ${nightTemp}°F`,         -10);
+        else if (nightTemp <= 72) add('🌡️', `Comfortable overnight: ${nightTemp}°F`,  +10);
+        else if (nightTemp > 85)  add('🌡️', `Muggy overnight: ${nightTemp}°F`,         -5);
+      }
+      if (temp > 100) add('🌡️', `Dangerous heat: ${temp}°F`, -20);
+    } else {
+      if (temp > 100)    add('🌡️', `Dangerous heat: ${temp}°F`,  -15);
+      else if (temp < 30) add('🌡️', `Freezing temps: ${temp}°F`, -10);
+    }
   }
 
   // ── Solunar ──────────────────────────────────────────────────────
   if (S.solunarNow) {
-    if (S.solunarNow.rating === 'Excellent') add('🌙', 'Excellent solunar period now',  +20);
-    else if (S.solunarNow.rating === 'Good') add('🌙', 'Good solunar period',           +10);
-    else if (S.solunarNow.rating === 'Poor') add('🌙', 'Poor solunar period',            -5);
+    if (S.solunarNow.rating === 'Excellent') add(isCamp ? '✨' : '🌙', isCamp ? 'Great night sky conditions' : 'Excellent solunar period now', +20);
+    else if (S.solunarNow.rating === 'Good') add(isCamp ? '✨' : '🌙', isCamp ? 'Good stargazing tonight'    : 'Good solunar period',           +10);
+    else if (S.solunarNow.rating === 'Poor') add(isCamp ? '🌙' : '🌙', isCamp ? 'Limited stargazing tonight' : 'Poor solunar period',           -5);
   }
 
   value = Math.max(0, Math.min(100, Math.round(value)));
@@ -492,6 +557,7 @@ function renderAll() {
   renderAlerts();
   renderSolunar();
   renderForecast3();
+  renderNearbyEvents(document.getElementById('events-card'));
   document.getElementById('last-updated').textContent =
     `Updated ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
 }
@@ -520,6 +586,13 @@ function renderGoNoGo() {
 
 function renderRiver() {
   const el = document.getElementById('river-card');
+
+  // Campsite: show campfire safety instead of river data
+  if (S.loc.type === 'campsite') {
+    renderCampfire(el);
+    return;
+  }
+
   if (!S.loc.gaugeId) {
     el.innerHTML = `<div class="card-title">🌊 River Conditions</div>
       <p class="no-data">No river gauge for this location. Check <a href="https://river.riktom.com" target="_blank">RiverWatch</a> for nearby gauges.</p>`;
@@ -618,6 +691,89 @@ function renderSolunar() {
     </div>`;
 }
 
+function renderCampfire(el) {
+  const hasEvt = (...terms) => S.alerts.some(a => terms.some(t => a.properties.event.includes(t)));
+  const redFlag    = hasEvt('Red Flag Warning');
+  const fireWatch  = hasEvt('Fire Weather Watch');
+  const winds      = S.weather?.periods?.[0] ? (S.weather.periods[0].windSpeed || '').match(/\d+/g)?.map(Number) || [0] : [0];
+  const windMax    = Math.max(...winds);
+  const precip     = S.weather?.periods?.[0]?.probabilityOfPrecipitation?.value ?? null;
+  const tonight    = S.weather?.periods?.[1];
+  const nightTemp  = tonight?.temperature ?? null;
+  const nightDesc  = tonight?.shortForecast ?? '';
+
+  let fireStatus, fireClass, fireIcon, fireNote;
+  if (redFlag) {
+    fireStatus = 'Campfire Banned'; fireClass = 'bad'; fireIcon = '🚫';
+    fireNote   = 'Red Flag Warning in effect — open fires prohibited. Use camp stove only.';
+  } else if (fireWatch || windMax > 25) {
+    fireStatus = 'Use Caution';  fireClass = 'caution'; fireIcon = '⚠️';
+    fireNote   = fireWatch ? 'Fire Weather Watch — keep fires small and attended at all times.'
+                           : `High winds (${S.weather.periods[0].windSpeed}) — keep fire small and extinguish fully before sleeping.`;
+  } else {
+    fireStatus = 'Campfire OK';  fireClass = 'good'; fireIcon = '🔥';
+    fireNote   = precip !== null && precip > 50
+      ? `Rain likely (${precip}%) — gather wood early. Campfire conditions are otherwise safe.`
+      : 'Conditions are safe for a campfire. Always follow local fire rules and Leave No Trace.';
+  }
+
+  const nightRow = nightTemp !== null
+    ? `<div class="camp-row"><span class="camp-icon">🌙</span><span class="camp-label">Tonight's Low</span><span class="camp-val">${nightTemp}°F — ${esc(nightDesc)}</span></div>`
+    : '';
+  const precipRow = precip !== null
+    ? `<div class="camp-row"><span class="camp-icon">🌧️</span><span class="camp-label">Rain Chance</span><span class="camp-val">${precip}%</span></div>`
+    : '';
+
+  el.innerHTML = `
+    <div class="card-title">🔥 Campfire Safety</div>
+    <div class="campfire-status ${fireClass}">${fireIcon} ${fireStatus}</div>
+    <div class="campfire-note">${esc(fireNote)}</div>
+    <div class="camp-details">
+      <div class="camp-row"><span class="camp-icon">💨</span><span class="camp-label">Wind</span><span class="camp-val">${S.weather?.periods?.[0] ? esc(S.weather.periods[0].windSpeed || '—') : '—'}</span></div>
+      ${precipRow}
+      ${nightRow}
+    </div>
+    <div class="camp-links">
+      <a href="https://burn.riktom.com" target="_blank" rel="noopener" class="camp-link">🔥 Check Burn Permit</a>
+      <a href="https://gastateparks.org/firewise" target="_blank" rel="noopener" class="camp-link">GA Fire Rules →</a>
+    </div>`;
+}
+
+function renderNearbyEvents(el) {
+  if (!el) return;
+  if (S.loc.type !== 'campsite') { el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  const city    = esc(S.loc.city || S.loc.county);
+  const county  = esc(S.loc.county);
+  const citySlug = (S.loc.city || S.loc.county).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const q       = encodeURIComponent(`${S.loc.city || S.loc.county} Georgia`);
+
+  const links = [
+    { icon: '🔍', name: 'Google Events',     sub: 'Search all events nearby',   url: `https://www.google.com/search?q=events+near+${q}+this+weekend` },
+    { icon: '🎟️', name: 'Eventbrite',        sub: 'Festivals, concerts, shows',  url: `https://www.eventbrite.com/d/ga--${citySlug}/events/` },
+    { icon: '👥', name: 'Facebook Events',   sub: 'Local & community events',    url: `https://www.facebook.com/events/search/?q=${q}` },
+    { icon: '🌲', name: 'Explore Georgia',   sub: 'State parks & attractions',   url: `https://www.exploregeorgia.org/search#q=${q}&t=things-to-do` },
+    { icon: '🎡', name: 'GA Festivals',      sub: 'Fairs, markets & festivals',  url: `https://www.georgiafestivals.com/search/?q=${q}` },
+    { icon: '🏕️', name: 'Recreation.gov',    sub: 'Ranger programs & permits',   url: `https://www.recreation.gov/search?q=${q}` },
+  ];
+
+  el.innerHTML = `
+    <div class="card-title">📅 Nearby Events & Activities — ${city} Area</div>
+    <p class="events-note">Search for events and things to do near <strong>${city}, GA</strong> during your trip:</p>
+    <div class="events-grid">
+      ${links.map(l => `
+        <a href="${l.url}" target="_blank" rel="noopener" class="event-link-card">
+          <span class="event-icon">${l.icon}</span>
+          <div class="event-info">
+            <div class="event-name">${l.name}</div>
+            <div class="event-sub">${l.sub}</div>
+          </div>
+          <span class="event-arrow">→</span>
+        </a>`).join('')}
+    </div>`;
+}
+
 function renderForecast3() {
   const el = document.getElementById('forecast3-card');
   if (!S.forecast3.length) { el.innerHTML = skelHtml('3-Day Forecast'); return; }
@@ -644,6 +800,8 @@ function skelHtml(title) {
 function showSkeletons() {
   ['gonogo-card','river-card','weather-card','alerts-card','solunar-card','forecast3-card']
     .forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = skelHtml('…'); });
+  const evEl = document.getElementById('events-card');
+  if (evEl) evEl.style.display = 'none';
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -653,7 +811,7 @@ function updateLocHeader() {
   if (!S.loc) return;
   document.getElementById('loc-name').textContent = S.loc.name;
 
-  const typeEmoji = { river: '🎣', wma: '🦌', lake: '🐟' }[S.loc.type] || '📍';
+  const typeEmoji = { river: '🎣', wma: '🦌', lake: '🐟', campsite: '⛺' }[S.loc.type] || '📍';
   const tags = S.loc.tags.slice(0, 5).map(t => `<span class="meta-tag">${esc(t)}</span>`).join('');
   document.getElementById('loc-meta').innerHTML =
     `${typeEmoji} ${esc(S.loc.county)} County, GA &nbsp;·&nbsp; ${tags}
@@ -676,7 +834,7 @@ function updateMap() {
   if (!S.map) return; // map not opened yet — will update on first open
   S.map.setView([S.loc.lat, S.loc.lon], 11);
   if (S.marker) S.map.removeLayer(S.marker);
-  const icon = { river: '🎣', wma: '🦌', lake: '🐟' }[S.loc.type] || '📍';
+  const icon = { river: '🎣', wma: '🦌', lake: '🐟', campsite: '⛺' }[S.loc.type] || '📍';
   S.marker = L.marker([S.loc.lat, S.loc.lon])
     .addTo(S.map)
     .bindPopup(`<strong>${S.loc.name}</strong><br>${S.loc.county} County, GA

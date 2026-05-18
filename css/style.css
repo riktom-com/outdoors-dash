@@ -529,6 +529,48 @@ footer {
 .footer-links a { color: #a5d6a7; text-decoration: none; }
 .footer-links a:hover { color: #fff; }
 
+/* ─── CAMPFIRE CARD ──────────────────────────────────────────────── */
+.campfire-status {
+  font-size: 1.2rem; font-weight: 700; padding: 0.5rem 0.9rem;
+  border-radius: 8px; display: inline-block; margin: 0.5rem 0 0.4rem;
+}
+.campfire-status.good    { background: #e8f5e9; color: #2e7d32; }
+.campfire-status.caution { background: #fff8e1; color: #f57f17; }
+.campfire-status.bad     { background: #ffebee; color: #c62828; }
+.campfire-note { font-size: 0.87rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem; }
+.camp-details { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+.camp-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
+.camp-icon { width: 1.4rem; text-align: center; }
+.camp-label { color: var(--text-muted); min-width: 6rem; }
+.camp-val { font-weight: 600; color: var(--text); }
+.camp-links { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.25rem; }
+.camp-link {
+  font-size: 0.82rem; font-weight: 600; color: var(--green-dark);
+  border: 1px solid var(--green-med); border-radius: 6px;
+  padding: 0.3rem 0.7rem; text-decoration: none; transition: background 0.15s;
+}
+.camp-link:hover { background: #e8f5e9; }
+
+/* ─── NEARBY EVENTS CARD ─────────────────────────────────────────── */
+.events-note { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.9rem; }
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.75rem;
+}
+.event-link-card {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 0.9rem; border: 1px solid var(--border);
+  border-radius: 10px; text-decoration: none; background: #fafafa;
+  transition: border-color 0.15s, background 0.15s;
+}
+.event-link-card:hover { border-color: var(--green-med); background: #f1f8e9; }
+.event-icon { font-size: 1.5rem; line-height: 1; flex-shrink: 0; }
+.event-info { flex: 1; min-width: 0; }
+.event-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.event-sub  { font-size: 0.77rem; color: var(--text-muted); margin-top: 0.1rem; }
+.event-arrow { color: var(--green); font-weight: bold; flex-shrink: 0; }
+
 /* ─── ACCESSIBILITY ──────────────────────────────────────────────── */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
