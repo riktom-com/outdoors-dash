@@ -7,7 +7,7 @@
 **GitHub:** https://github.com/riktom-com/outdoors-dash
 
 ## What It Does
-Single-screen trip planner for South Georgia outdoors. User picks a location (river, WMA, or lake) and sees:
+Single-screen trip planner for South Georgia outdoors. User picks a location (river, WMA, lake, or campground) and sees:
 - **Go/No Go score** (0–100) with contributing factors
 - **River conditions** (USGS gauge height + discharge + 3-hr trend)
 - **Weather** (NWS 7-day forecast — today's period)
@@ -28,7 +28,7 @@ Single-screen trip planner for South Georgia outdoors. User picks a location (ri
 | Solunar | computed client-side (same algorithm as deer-radar) | — |
 | Map tiles | OpenStreetMap via Leaflet CDN | ✅ |
 
-## Locations (12 presets)
+## Locations (18 presets)
 Rivers (with USGS gauge IDs):
 - Withlacoochee River — Pinetta Area (02317500)
 - Alapaha River — Statenville (02317796)
@@ -46,6 +46,14 @@ Lakes (weather/alerts/solunar only):
 - Banks Lake NWR (Lanier County)
 - Reed Bingham State Park (Cook County)
 - Lake Seminole (Seminole County)
+
+Campgrounds (weather/campfire safety/nearby events):
+- Stephen C. Foster State Park — Fargo (Charlton County) — IDA Dark Sky Park
+- Laura S. Walker State Park — Waycross (Ware County)
+- General Coffee State Park — Douglas (Coffee County)
+- Seminole State Park — Donalsonville (Seminole County)
+- Okefenokee Adventures Campground — Folkston (Charlton County)
+- Reed Bingham State Park Campground — Adel (Cook County)
 
 ## Go/No Go Algorithm
 Base: 70
@@ -94,6 +102,11 @@ server {
     location / { try_files $uri $uri/ =404; }
 }
 ```
+
+## Campground-specific cards (type: campsite)
+- **Campfire Safety card** (replaces River card): Red Flag Warning → banned; Fire Weather Watch or wind >25mph → caution; otherwise OK. Shows tonight's low temp, rain %, wind, links to burn.riktom.com.
+- **Nearby Events card** (full-width, below forecast): search links to Google Events, Eventbrite, Facebook Events, Explore Georgia, GA Festivals, Recreation.gov — pre-filled with campground city.
+- **Go/No Go scoring** tuned for camping: overnight temp bonus/penalty, heavier rain/wind penalties, Red Flag hits harder, stargazing replaces solunar label.
 
 ## Future Enhancements
 - Push notifications for river flood stage changes and Red Flag Warnings (requires service worker + backend notification server)
